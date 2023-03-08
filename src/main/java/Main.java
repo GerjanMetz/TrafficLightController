@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,25 +69,50 @@ public class Main {
      * @return ArrayList of TrafficLightVO containing the new status of the traffic lights
      */
     public static void setNewLightStatus(ArrayList<TrafficLightStatusVO> currentTrafficLightStatus, WaitingCarsVO[] waitingCars,  int tick) {
-        ArrayList<TrafficLightStatusVO> newTrafficLightStatus = new ArrayList<>();
         ArrayList<WaitingCarsVO> waitingCarsVOArrayList = new ArrayList<>(List.of(waitingCars));
 
-        // Check if most recent change of lights is at least 10 seconds
-        
-        // Check if there are no cars
-        if (hasNoWaitingCars(waitingCarsVOArrayList)) {
-            currentTrafficLightStatus.forEach(trafficLightStatusVO -> trafficLightStatusVO.status = 0);
-            return;
+        // Check if most recent change to green lights is at least 10 seconds
+        if (hasLightActive(currentTrafficLightStatus, 2)) {
+            if (getShortestChangeToStatusDateInSeconds(currentTrafficLightStatus, 2) > 10) {
+                setGreenLightsToOrange(currentTrafficLightStatus);
+                return;
+            }
         }
 
-        // Find lane with the highest weight number
-        WaitingCarsVO highestWeight = findHighestWeight(waitingCarsVOArrayList);
-        // Set light status according to truth table
-        try {
-            setLightStatusAccordingTruthTable(currentTrafficLightStatus, highestWeight);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        // Check if most recent change to orange lights is at least 3 seconds
+        if (hasLightActive(currentTrafficLightStatus, 1)) {
+            if (getShortestChangeToStatusDateInSeconds(currentTrafficLightStatus, 1) > 3) {
+                setOrangeLightsToRed(currentTrafficLightStatus);
+                return;
+            }
         }
+
+        // Check if most recent change to red lights is at least 2 seconds
+        if (hasAllLightsSetToRed(currentTrafficLightStatus)) {
+            if (getShortestChangeToStatusDateInSeconds(currentTrafficLightStatus, 0) > 2) {
+                // Check if there are no cars
+                if (hasNoWaitingCars(waitingCarsVOArrayList)) {
+                    currentTrafficLightStatus.forEach(trafficLightStatusVO -> trafficLightStatusVO.status = 0);
+                    return;
+                }
+
+                // Find lane with the highest weight number
+                WaitingCarsVO highestWeight = findHighestWeight(waitingCarsVOArrayList);
+                // Set light status according to truth table
+                try {
+                    setLightStatusAccordingTruthTable(currentTrafficLightStatus, highestWeight);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+//        // Check if there is no light set to red for more than 1 minute and 40 seconds
+//        if (hasLightActive(currentTrafficLightStatus, 0)) {
+//            if (getLongestChangeToStatusDateInSeconds(currentTrafficLightStatus, 0) > 100) {
+//                System.out.println(new Exception("Traffic light was set to red for more than 100 seconds"));
+//            }
+//        }
     }
     
     public static boolean hasNoWaitingCars(ArrayList<WaitingCarsVO> waitingCars) {
@@ -94,6 +121,52 @@ public class Main {
                 return false;
         }
         return true;
+    }
+
+    public static boolean hasLightActive(ArrayList<TrafficLightStatusVO> currentTrafficLightStatus, int lightStatus) {
+        for (TrafficLightStatusVO lightStatusVO : currentTrafficLightStatus) {
+            if (lightStatusVO.getStatus() == lightStatus)
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean hasAllLightsSetToRed(ArrayList<TrafficLightStatusVO> currentTrafficLightStatus) {
+        for (TrafficLightStatusVO lightStatusVO : currentTrafficLightStatus) {
+            if (lightStatusVO.getStatus() != 0)
+                return false;
+        }
+        return true;
+    }
+
+    public static long getShortestChangeToStatusDateInSeconds(ArrayList<TrafficLightStatusVO> currentTrafficLightStatus, int lightStatus) {
+        long shortestSeconds = Long.MAX_VALUE;
+        LocalDateTime now = LocalDateTime.now();
+
+        for (TrafficLightStatusVO lightStatusVO : currentTrafficLightStatus) {
+            if (lightStatusVO.getStatus() == lightStatus &&
+                    (Duration.between(lightStatusVO.getLastChangeToStatusDate(), now)).getSeconds() < shortestSeconds) {
+                shortestSeconds = (Duration.between(lightStatusVO.getLastChangeToStatusDate(), now)).getSeconds();
+            }
+        }
+        if (shortestSeconds == Long.MAX_VALUE)
+            return -1;
+        return shortestSeconds;
+    }
+
+    public static long getLongestChangeToStatusDateInSeconds(ArrayList<TrafficLightStatusVO> currentTrafficLightStatus, int lightStatus) {
+        long shortestSeconds = Long.MIN_VALUE;
+        LocalDateTime now = LocalDateTime.now();
+
+        for (TrafficLightStatusVO lightStatusVO : currentTrafficLightStatus) {
+            if (lightStatusVO.getStatus() == lightStatus &&
+                    (Duration.between(lightStatusVO.getLastChangeToStatusDate(), now)).getSeconds() > shortestSeconds) {
+                shortestSeconds = (Duration.between(lightStatusVO.getLastChangeToStatusDate(), now)).getSeconds();
+            }
+        }
+        if (shortestSeconds == Long.MAX_VALUE)
+            return -1;
+        return shortestSeconds;
     }
 
     public static WaitingCarsVO findHighestWeight(ArrayList<WaitingCarsVO> waitingCars) {
@@ -120,5 +193,19 @@ public class Main {
         } else {
             throw new Exception("Undefined traffic light ID supplied, can be 2.1, 5.1, 8.1 or 11.1, but was: " + highestPriorityLane.getId());
         }
+    }
+
+    public static void setGreenLightsToOrange(ArrayList<TrafficLightStatusVO> trafficLightStatus) {
+        trafficLightStatus.forEach(trafficLightStatusVO -> {
+            if (trafficLightStatusVO.getStatus() == 2)
+                trafficLightStatusVO.setStatus(1);
+        });
+    }
+
+    public static void setOrangeLightsToRed(ArrayList<TrafficLightStatusVO> trafficLightStatus) {
+        trafficLightStatus.forEach(trafficLightStatusVO -> {
+            if (trafficLightStatusVO.getStatus() == 1)
+                trafficLightStatusVO.setStatus(0);
+        });
     }
 }
