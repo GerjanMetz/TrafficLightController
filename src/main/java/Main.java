@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,6 +18,23 @@ public class Main {
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         int tickNumber = 0;
+        ArrayList<TrafficLightStatusVO> trafficLightStatus = new ArrayList<>();
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(2.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(5.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(8.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(11.1);
+            setStatus(0);
+        }});
 
         try {
             serverSocket = new ServerSocket(port);
@@ -29,7 +47,7 @@ public class Main {
                 WaitingCarsVO[] waitingCars = objectMapper.readValue(clientSocket.getInputStream(), WaitingCarsVO[].class);
 
                 // Calculate new status of lights
-                ArrayList<TrafficLightStatusVO> trafficLightStatus = getConf(tickNumber);
+                setNewLightStatus(trafficLightStatus, waitingCars, tickNumber);
 
                 // Send new status
                 objectMapper.writeValue(clientSocket.getOutputStream(), trafficLightStatus);
@@ -48,45 +66,24 @@ public class Main {
      * @param tick The current tick number used to alternate traffic lights
      * @return ArrayList of TrafficLightVO containing the new status of the traffic lights
      */
-    private static ArrayList<TrafficLightStatusVO> getConf(int tick) {
-        ArrayList<TrafficLightStatusVO> trafficLightStatus = new ArrayList<>();
-
-        if (tick % 2 == 0) {
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(2.1);
-                setStatus(0);
-            }});
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(5.1);
-                setStatus(2);
-            }});
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(8.1);
-                setStatus(0);
-            }});
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(11.1);
-                setStatus(2);
-            }});
-        } else {
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(2.1);
-                setStatus(2);
-            }});
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(5.1);
-                setStatus(0);
-            }});
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(8.1);
-                setStatus(2);
-            }});
-            trafficLightStatus.add(new TrafficLightStatusVO() {{
-                setId(11.1);
-                setStatus(0);
-            }});
+    public static void setNewLightStatus(ArrayList<TrafficLightStatusVO> currentTrafficLightStatus, WaitingCarsVO[] waitingCars,  int tick) {
+        ArrayList<TrafficLightStatusVO> newTrafficLightStatus = new ArrayList<>();
+        ArrayList<WaitingCarsVO> waitingCarsVOArrayList = new ArrayList<>(List.of(waitingCars));
+        
+        // Check if there are no cars
+        if (checkIfNoCars(waitingCarsVOArrayList)) {
+            currentTrafficLightStatus.forEach(trafficLightStatusVO -> trafficLightStatusVO.status = 0);
+            return;
         }
 
-        return trafficLightStatus;
+        return;
+    }
+    
+    public static boolean checkIfNoCars(ArrayList<WaitingCarsVO> waitingCars) {
+        for (WaitingCarsVO waitingCarsVO : waitingCars) {
+            if (waitingCarsVO.weight > 0)
+                return false;
+        }
+        return true;
     }
 }
