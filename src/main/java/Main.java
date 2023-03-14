@@ -204,18 +204,52 @@ public class Main {
     }
 
     public static void setLightStatusAccordingTruthTable(ArrayList<TrafficLightStatusVO> trafficLightStatus, WaitingCarsVO highestPriorityLane) throws Exception {
-        if (highestPriorityLane.getId() == 2.1 || highestPriorityLane.getId() == 8.1) {
-            trafficLightStatus.get(1).setStatus(2);
-            trafficLightStatus.get(2).setStatus(0);
-            trafficLightStatus.get(5).setStatus(2);
-            trafficLightStatus.get(8).setStatus(0);
-        } else if (highestPriorityLane.getId() == 5.1 || highestPriorityLane.getId() == 11.1) {
-            trafficLightStatus.get(1).setStatus(0);
-            trafficLightStatus.get(2).setStatus(2);
-            trafficLightStatus.get(5).setStatus(0);
-            trafficLightStatus.get(8).setStatus(2);
+        if (highestPriorityLane.getId() == 1.1 || highestPriorityLane.getId() == 2.1) {
+            trafficLightStatus.get(0).setStatus(2); // Light 1.1
+            trafficLightStatus.get(1).setStatus(2); // Light 2.1
+            trafficLightStatus.get(2).setStatus(0); // Light 5.1
+            trafficLightStatus.get(3).setStatus(0); // Light 6.1
+            trafficLightStatus.get(4).setStatus(2); // Light 7.1
+            trafficLightStatus.get(5).setStatus(2); // Light 8.1
+            trafficLightStatus.get(6).setStatus(0); // Light 9.1
+            trafficLightStatus.get(7).setStatus(0); // Light 10.1
+            trafficLightStatus.get(8).setStatus(0); // Light 11.1
+            trafficLightStatus.get(9).setStatus(0); // Light 12.1
+        } else if (highestPriorityLane.getId() == 5.1 || highestPriorityLane.getId() == 6.1) {
+            trafficLightStatus.get(0).setStatus(0); // Light 1.1
+            trafficLightStatus.get(1).setStatus(0); // Light 2.1
+            trafficLightStatus.get(2).setStatus(2); // Light 5.1
+            trafficLightStatus.get(3).setStatus(2); // Light 6.1
+            trafficLightStatus.get(4).setStatus(2); // Light 7.1
+            trafficLightStatus.get(5).setStatus(0); // Light 8.1
+            trafficLightStatus.get(6).setStatus(0); // Light 9.1
+            trafficLightStatus.get(7).setStatus(0); // Light 10.1
+            trafficLightStatus.get(8).setStatus(0); // Light 11.1
+            trafficLightStatus.get(9).setStatus(0); // Light 12.1
+        } else if (highestPriorityLane.getId() == 7.1 || highestPriorityLane.getId() == 8.1 || highestPriorityLane.getId() == 9.1) {
+            trafficLightStatus.get(0).setStatus(0); // Light 1.1
+            trafficLightStatus.get(1).setStatus(0); // Light 2.1
+            trafficLightStatus.get(2).setStatus(0); // Light 5.1
+            trafficLightStatus.get(3).setStatus(0); // Light 6.1
+            trafficLightStatus.get(4).setStatus(2); // Light 7.1
+            trafficLightStatus.get(5).setStatus(2); // Light 8.1
+            trafficLightStatus.get(6).setStatus(2); // Light 9.1
+            trafficLightStatus.get(7).setStatus(2); // Light 10.1
+            trafficLightStatus.get(8).setStatus(0); // Light 11.1
+            trafficLightStatus.get(9).setStatus(0); // Light 12.1
+        } else if (highestPriorityLane.getId() == 10.1 || highestPriorityLane.getId() == 11.1 || highestPriorityLane.getId() == 12.1) {
+            trafficLightStatus.get(0).setStatus(2); // Light 1.1
+            trafficLightStatus.get(1).setStatus(0); // Light 2.1
+            trafficLightStatus.get(2).setStatus(0); // Light 5.1
+            trafficLightStatus.get(3).setStatus(0); // Light 6.1
+            trafficLightStatus.get(4).setStatus(0); // Light 7.1
+            trafficLightStatus.get(5).setStatus(0); // Light 8.1
+            trafficLightStatus.get(6).setStatus(0); // Light 9.1
+            trafficLightStatus.get(7).setStatus(2); // Light 10.1
+            trafficLightStatus.get(8).setStatus(2); // Light 11.1
+            trafficLightStatus.get(9).setStatus(2); // Light 12.1
         } else {
-            throw new Exception("Undefined traffic light ID supplied, can be 2.1, 5.1, 8.1 or 11.1, but was: " + highestPriorityLane.getId());
+            throw new Exception("Undefined traffic light ID supplied, can be 1.1, 2.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1 or 12.1, but was: " + highestPriorityLane.getId());
         }
     }
 
