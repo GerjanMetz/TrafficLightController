@@ -22,6 +22,10 @@ public class Main {
         int tickNumber = 0;
         ArrayList<TrafficLightStatusVO> trafficLightStatus = new ArrayList<>();
         trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(1.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
             setId(2.1);
             setStatus(0);
         }});
@@ -30,11 +34,31 @@ public class Main {
             setStatus(0);
         }});
         trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(6.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(7.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
             setId(8.1);
             setStatus(0);
         }});
         trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(9.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(10.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
             setId(11.1);
+            setStatus(0);
+        }});
+        trafficLightStatus.add(new TrafficLightStatusVO() {{
+            setId(12.1);
             setStatus(0);
         }});
 
@@ -181,15 +205,15 @@ public class Main {
 
     public static void setLightStatusAccordingTruthTable(ArrayList<TrafficLightStatusVO> trafficLightStatus, WaitingCarsVO highestPriorityLane) throws Exception {
         if (highestPriorityLane.getId() == 2.1 || highestPriorityLane.getId() == 8.1) {
-            trafficLightStatus.get(0).setStatus(2);
-            trafficLightStatus.get(1).setStatus(0);
-            trafficLightStatus.get(2).setStatus(2);
-            trafficLightStatus.get(3).setStatus(0);
-        } else if (highestPriorityLane.getId() == 5.1 || highestPriorityLane.getId() == 11.1) {
-            trafficLightStatus.get(0).setStatus(0);
             trafficLightStatus.get(1).setStatus(2);
             trafficLightStatus.get(2).setStatus(0);
-            trafficLightStatus.get(3).setStatus(2);
+            trafficLightStatus.get(5).setStatus(2);
+            trafficLightStatus.get(8).setStatus(0);
+        } else if (highestPriorityLane.getId() == 5.1 || highestPriorityLane.getId() == 11.1) {
+            trafficLightStatus.get(1).setStatus(0);
+            trafficLightStatus.get(2).setStatus(2);
+            trafficLightStatus.get(5).setStatus(0);
+            trafficLightStatus.get(8).setStatus(2);
         } else {
             throw new Exception("Undefined traffic light ID supplied, can be 2.1, 5.1, 8.1 or 11.1, but was: " + highestPriorityLane.getId());
         }
