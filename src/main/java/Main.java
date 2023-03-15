@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Main {
@@ -20,6 +22,18 @@ public class Main {
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         int tickNumber = 0;
+        HashMap<Double, TrafficLightConflict> conflictMatrix = new HashMap<Double, TrafficLightConflict>();
+        conflictMatrix.put(1.1, new TrafficLightConflict(List.of(2.1, 6.1, 7.1, 8.1, 10.1, 11.1, 12.1), List.of(5.1, 9.1)));
+        conflictMatrix.put(2.1, new TrafficLightConflict(List.of(1.1, 7.1, 8.1), List.of(5.1, 6.1, 9.1, 10.1, 11.1, 12.1)));
+        conflictMatrix.put(5.1, new TrafficLightConflict(List.of(6.1, 7.1, 10.1, 11.1), List.of(1.1, 2.1, 8.1, 9.1, 12.1)));
+        conflictMatrix.put(6.1, new TrafficLightConflict(List.of(1.1, 5.1, 7.1), List.of(2.1, 8.1, 9.1, 10.1, 11.1, 12.1)));
+        conflictMatrix.put(7.1, new TrafficLightConflict(List.of(1.1, 5.1, 6.1, 8.1, 9.1, 10.1, 12.1), List.of(2.1, 11.1)));
+        conflictMatrix.put(8.1, new TrafficLightConflict(List.of(1.1, 2.1, 7.1, 9.1, 10.1), List.of(5.1, 6.1, 11.1, 12.1)));
+        conflictMatrix.put(9.1, new TrafficLightConflict(List.of(7.1, 8.1, 10.1), List.of(1.1, 2.1, 5.1, 6.1, 11.1, 12.1)));
+        conflictMatrix.put(10.1,new TrafficLightConflict(List.of(1.1, 5.1, 7.1, 8.1, 9.1, 11.1, 12.1), List.of(2.1, 6.1)));
+        conflictMatrix.put(11.1,new TrafficLightConflict(List.of(1.1, 5.1, 10.1, 12.1), List.of(2.1, 6.1, 7.1, 8.1, 9.1)));
+        conflictMatrix.put(12.1,new TrafficLightConflict(List.of(1.1, 7.1, 10.1, 11.1), List.of(2.1, 5.1, 6.1, 8.1, 9.1)));
+
         ArrayList<TrafficLightStatusVO> trafficLightStatus = new ArrayList<>();
         trafficLightStatus.add(new TrafficLightStatusVO() {{
             setId(1.1);
