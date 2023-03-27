@@ -23,7 +23,7 @@ public class TrafficLightConflict {
         return this.conflicts;
     }
 
-    public void setConflicts(ArrayList<Double> conflicts) {
+    public void setConflicts(List<Double> conflicts) {
         this.conflicts = conflicts;
     }
 }
