@@ -1,16 +1,19 @@
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,67 +22,57 @@ public class Main {
         ServerSocket serverSocket;
         Socket clientSocket;
 
+        MyModel model = new MyModel();
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
 
-        // Conflict matrix for V0.3: Verkeer kan baan met rechtdoor & afslaan;
-//        HashMap<Double, TrafficLightConflict> conflictMatrix = new HashMap<Double, TrafficLightConflict>();
-//        conflictMatrix.put(1.1, new TrafficLightConflict(List.of(2.1, 6.1, 7.1, 8.1, 10.1, 11.1, 12.1), List.of(5.1, 9.1)));
-//        conflictMatrix.put(2.1, new TrafficLightConflict(List.of(1.1, 7.1, 8.1), List.of(5.1, 6.1, 9.1, 10.1, 11.1, 12.1)));
-//        conflictMatrix.put(5.1, new TrafficLightConflict(List.of(6.1, 7.1, 10.1, 11.1), List.of(1.1, 2.1, 8.1, 9.1, 12.1)));
-//        conflictMatrix.put(6.1, new TrafficLightConflict(List.of(1.1, 5.1, 7.1), List.of(2.1, 8.1, 9.1, 10.1, 11.1, 12.1)));
-//        conflictMatrix.put(7.1, new TrafficLightConflict(List.of(1.1, 5.1, 6.1, 8.1, 9.1, 10.1, 12.1), List.of(2.1, 11.1)));
-//        conflictMatrix.put(8.1, new TrafficLightConflict(List.of(1.1, 2.1, 7.1, 9.1, 10.1), List.of(5.1, 6.1, 11.1, 12.1)));
-//        conflictMatrix.put(9.1, new TrafficLightConflict(List.of(7.1, 8.1, 10.1), List.of(1.1, 2.1, 5.1, 6.1, 11.1, 12.1)));
-//        conflictMatrix.put(10.1, new TrafficLightConflict(List.of(1.1, 5.1, 7.1, 8.1, 9.1, 11.1, 12.1), List.of(2.1, 6.1)));
-//        conflictMatrix.put(11.1, new TrafficLightConflict(List.of(1.1, 5.1, 10.1, 12.1), List.of(2.1, 6.1, 7.1, 8.1, 9.1)));
-//        conflictMatrix.put(12.1, new TrafficLightConflict(List.of(1.1, 7.1, 10.1, 11.1), List.of(2.1, 5.1, 6.1, 8.1, 9.1)));
+        // Read Excel file
+        try {
+            FileInputStream file = new FileInputStream(new File("conflictMatrices/conflict-matrix-v0.6.xlsx"));
+            Workbook workbook = new XSSFWorkbook(file);
 
-        // Conflict matrix for V0.5 & v0.6: Fietsers en voetgangers;
-        HashMap<Double, TrafficLightConflict> conflictMatrix = new HashMap<Double, TrafficLightConflict>();
-        conflictMatrix.put(1.1, new TrafficLightConflict( List.of(2.1, 6.1, 7.1, 8.1, 10.1, 11.1, 12.1, 86.1, 35.1, 26.1, 36.2), List.of(5.1, 9.1, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2)));
-        conflictMatrix.put(2.1, new TrafficLightConflict( List.of(1.1, 7.1, 8.1, 88.1, 37.2, 28.1, 38.2), List.of(5.1, 6.1, 9.1, 10.1, 11.1, 12.1, 86.1, 35.1, 26.1, 36.2, 31.2, 22.0, 32.2)));
-        conflictMatrix.put(5.1, new TrafficLightConflict( List.of(6.1, 7.1, 10.1, 11.1, 86.1, 35.1, 26.1, 36.2), List.of(1.1, 2.1, 8.1, 9.1, 12.1, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2)));
-        conflictMatrix.put(6.1, new TrafficLightConflict( List.of(1.1, 5.1, 7.1, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(2.1, 8.1, 9.1, 10.1, 11.1, 12.1, 86.1, 35.1, 26.1, 36.2)));
-        conflictMatrix.put(7.1, new TrafficLightConflict( List.of(1.1, 2.1, 5.1, 6.1, 8.1, 9.1, 10.1, 12.1, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(11.1, 86.1, 35.1, 26.1, 36.2)));
-        conflictMatrix.put(8.1, new TrafficLightConflict( List.of(1.1, 2.1, 7.1, 9.1, 10.1, 88.1, 37.2, 28.1, 38.2), List.of(5.1, 6.1, 11.1, 12.1, 86.1, 35.1, 26.1, 36.2, 31.2, 22.0, 32.2)));
-        conflictMatrix.put(9.1, new TrafficLightConflict( List.of(7.1, 8.1, 10.1, 31.2, 22.0, 32.2), List.of(1.1, 2.1, 5.1, 6.1, 11.1, 12.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2)));
-        conflictMatrix.put(10.1, new TrafficLightConflict(List.of(1.1, 5.1, 7.1, 8.1, 9.1, 11.1, 12.1, 31.2, 22.0, 32.2), List.of(2.1, 6.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2)));
-        conflictMatrix.put(11.1, new TrafficLightConflict(List.of(1.1, 5.1, 10.1, 12.1, 86.1, 35.1, 26.1, 36.2, 31.2, 22.0, 32.2), List.of(2.1, 6.1, 7.1, 8.1, 9.1, 88.1, 37.2, 28.1, 38.2)));
-        conflictMatrix.put(12.1, new TrafficLightConflict(List.of(1.1, 7.1, 10.1, 11.1, 86.1, 35.1, 26.1, 36.2), List.of(2.1, 5.1, 6.1, 8.1, 9.1, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2)));
-        conflictMatrix.put(86.1, new TrafficLightConflict(List.of(1.1, 5.1, 11.1, 12.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(2.1, 6.1, 7.1, 8.1, 9.1, 10.1)));
-        conflictMatrix.put(35.1, new TrafficLightConflict(List.of(1.1, 5.1, 11.1, 12.1, 86.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(2.1, 6.1, 7.1, 8.1, 9.1, 10.1)));
-        conflictMatrix.put(26.1, new TrafficLightConflict(List.of(1.1, 5.1, 11.1, 12.1, 86.1, 35.1, 36.2, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(2.1, 6.1, 7.1, 8.1, 9.1, 10.1)));
-        conflictMatrix.put(36.1, new TrafficLightConflict(List.of(1.1, 5.1, 11.1, 12.1, 86.1, 35.1, 26.1, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(2.1, 6.1, 7.1, 8.1, 9.1, 10.1)));
-        conflictMatrix.put(88.1, new TrafficLightConflict(List.of(2.1, 6.1, 7.1, 8.1, 86.1, 35.1, 26.1, 36.2, 37.2, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(1.1, 5.1, 9.1, 10.1, 11.1, 12.1)));
-        conflictMatrix.put(37.2, new TrafficLightConflict(List.of(2.1, 6.1, 7.1, 8.1, 86.1, 35.1, 26.1, 36.2, 88.1, 28.1, 38.2, 31.2, 22.0, 32.2), List.of(1.1, 5.1, 9.1, 10.1, 11.1, 12.1)));
-        conflictMatrix.put(28.1, new TrafficLightConflict(List.of(2.1, 6.1, 7.1, 8.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 38.2, 31.2, 22.0, 32.2), List.of(1.1, 5.1, 9.1, 10.1, 11.1, 12.1)));
-        conflictMatrix.put(38.2, new TrafficLightConflict(List.of(2.1, 6.1, 7.1, 8.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 31.2, 22.0, 32.2), List.of(1.1, 5.1, 9.1, 10.1, 11.1, 12.1)));
-        conflictMatrix.put(32.1, new TrafficLightConflict(List.of(6.1, 7.1, 9.1, 10.1, 11.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2, 22.0, 32.2), List.of(1.1, 2.1, 5.1, 8.1, 12.1)));
-        conflictMatrix.put(22.0, new TrafficLightConflict(List.of(6.1, 7.1, 9.1, 10.1, 11.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2, 31.2, 32.2), List.of(1.1, 2.1, 5.1, 8.1, 12.1)));
-        conflictMatrix.put(32.2, new TrafficLightConflict(List.of(6.1, 7.1, 9.1, 10.1, 11.1, 86.1, 35.1, 26.1, 36.2, 88.1, 37.2, 28.1, 38.2, 31.2, 22.0), List.of(1.1, 2.1, 5.1, 8.1, 12.1)));
+            Sheet sheet = workbook.getSheetAt(0);
 
+            MyModelItem currentItem = null;
+            for (Row row : sheet) {
+                for (Cell cell : row) {
+                    try {
+                        XSSFColor color = (XSSFColor) cell.getCellStyle().getFillForegroundColorColor();
+                        switch (color.getARGBHex()) {
+                            case "FFA5A5A5":
+                                System.out.println("Neutral");
+                                break;
+                            case "FFC6EFCE":
+                                System.out.println("Good");
+                                currentItem.addPossibility(cell.getNumericCellValue());
+                                break;
+                            case "FFFFC7CE":
+                                System.out.println("Bad");
+                                currentItem.addConflict(cell.getNumericCellValue());
+                                break;
+                            case "FFFFEB9C":
+                                System.out.println("New ID");
+                                currentItem = new MyModelItem(cell.getNumericCellValue());
+                                model.putLight(currentItem);
+                                break;
+                            default:
+                                System.out.println("Unsupported");
+                                break;
+                        }
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        // Model setup for V0.1: Eenvoudig kruispunt. Verkeer kan alleen rechtdoor;
-        MyModel model = new MyModel();
-        model.putLight(new MyModelItem(2.1) {{
-            setPossibilities(List.of(8.1));
-            setConflicts(List.of(5.1, 11.1));
-        }});
-        model.putLight(new MyModelItem(5.1) {{
-            setPossibilities(List.of(11.1));
-            setConflicts(List.of(2.1, 8.1));
-        }});
-        model.putLight(new MyModelItem(8.1) {{
-            setPossibilities(List.of(2.1));
-            setConflicts(List.of(5.1, 11.1));
-        }});
-        model.putLight(new MyModelItem(11.1) {{
-            setPossibilities(List.of(5.1));
-            setConflicts(List.of(2.1, 8.1));
-        }});
-
+        new Scanner(System.in).next();
 
         try {
             serverSocket = new ServerSocket(port);

@@ -1,4 +1,5 @@
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyModelItem {
@@ -14,6 +15,8 @@ public class MyModelItem {
         this.status = 0;
         this.lastChangeToStatusDate = LocalDateTime.now();
         this.turnsSinceGreen = 0;
+        this.possibilities = new ArrayList<>();
+        this.conflicts = new ArrayList<>();
     }
 
     public double getId() {
@@ -86,6 +89,14 @@ public class MyModelItem {
             weight *= multiplier;
         }
         return result;
+    }
+
+    public void addPossibility(double id) {
+        this.possibilities.add(id);
+    }
+
+    public void addConflict(double id) {
+        this.conflicts.add(id);
     }
 
     public void incrementTurn() {
