@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyModelItem {
+    LocalDateTime lastChangeToStatusDate;
     private double id, weight, multiplier;
     private int status, turnsSinceGreen;
     private List<Double> possibilities, conflicts;
-    LocalDateTime lastChangeToStatusDate;
 
     public MyModelItem(double id) {
         this.id = id;
