@@ -48,23 +48,18 @@ public class Main {
                         XSSFColor color = (XSSFColor) cell.getCellStyle().getFillForegroundColorColor();
                         switch (color.getARGBHex()) {
                             case "FFA5A5A5":
-                                System.out.println("Neutral");
                                 break;
                             case "FFC6EFCE":
-                                System.out.println("Good");
                                 currentItem.addPossibility(cell.getNumericCellValue());
                                 break;
                             case "FFFFC7CE":
-                                System.out.println("Bad");
                                 currentItem.addConflict(cell.getNumericCellValue());
                                 break;
                             case "FFFFEB9C":
-                                System.out.println("New ID");
                                 currentItem = new MyModelItem(cell.getNumericCellValue());
                                 model.putLight(currentItem);
                                 break;
                             default:
-                                System.out.println("Unsupported");
                                 break;
                         }
                     } catch (NullPointerException e) {
@@ -77,8 +72,6 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        new Scanner(System.in).next();
 
         try {
             serverSocket = new ServerSocket(port);
