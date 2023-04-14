@@ -86,7 +86,7 @@ public class MyModelItem {
     public double getPriority() {
         double result = weight;
         for (int i = 0; i < turnsSinceGreen; i++) {
-            weight *= multiplier;
+            result *= multiplier;
         }
         return result;
     }
