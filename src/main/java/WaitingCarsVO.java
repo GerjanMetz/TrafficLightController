@@ -1,9 +1,14 @@
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class WaitingCarsVO {
-    double id;
+    double id, priorityMultiplier;
     int weight;
+
+    public WaitingCarsVO() {
+        priorityMultiplier = 1.1;
+    }
 
     @JsonGetter("id")
     public double getId() {
@@ -23,5 +28,10 @@ public class WaitingCarsVO {
     @JsonSetter("weight")
     public void setWeight(int value) {
         this.weight = value;
+    }
+
+    @JsonIgnore
+    public double getPriority() {
+        return weight * priorityMultiplier;
     }
 }
