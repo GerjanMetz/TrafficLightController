@@ -22,8 +22,11 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
+
+    // Example args: 11000 "conflictMatrices/conflict-matrix-v0.6.xlsx"
     public static void main(String[] args) {
         int port = Integer.parseInt(args[0]);
+        File excelFile = new File(args[1]);
 
         ServerSocket serverSocket;
         Socket clientSocket;
@@ -36,7 +39,7 @@ public class Main {
 
         // Read Excel file
         try {
-            FileInputStream file = new FileInputStream(new File("conflictMatrices/conflict-matrix-v0.6.xlsx"));
+            FileInputStream file = new FileInputStream(excelFile);
             Workbook workbook = new XSSFWorkbook(file);
 
             Sheet sheet = workbook.getSheetAt(0);

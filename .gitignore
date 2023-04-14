@@ -235,3 +235,4 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,jetbrains,java,maven
+.DS_Store
