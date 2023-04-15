@@ -19,6 +19,17 @@ public class MyModelItem {
         this.conflicts = new ArrayList<>();
     }
 
+    public MyModelItem(double id, double multiplier) {
+        this.id = id;
+        this.weight = 0;
+        this.multiplier = multiplier;
+        this.status = 0;
+        this.lastChangeToStatusDate = LocalDateTime.now();
+        this.turnsSinceGreen = 0;
+        this.possibilities = new ArrayList<>();
+        this.conflicts = new ArrayList<>();
+    }
+
     public double getId() {
         return id;
     }
