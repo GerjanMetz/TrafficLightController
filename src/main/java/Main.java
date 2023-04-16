@@ -42,10 +42,14 @@ public class Main {
             FileInputStream file = new FileInputStream(excelFile);
             Workbook workbook = new XSSFWorkbook(file);
 
-            Sheet sheet = workbook.getSheetAt(0);
+            Sheet setupSheet = workbook.getSheet("Setup");
+            for (Row row : setupSheet) {
+                model.putLight(new MyModelItem(row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue()));
+            }
 
+            Sheet conflictMatrixSheet = workbook.getSheet("ConflictMatrix");
             MyModelItem currentItem = null;
-            for (Row row : sheet) {
+            for (Row row : conflictMatrixSheet) {
                 for (Cell cell : row) {
                     try {
                         XSSFColor color = (XSSFColor) cell.getCellStyle().getFillForegroundColorColor();
@@ -59,8 +63,7 @@ public class Main {
                                 currentItem.addConflict(cell.getNumericCellValue());
                                 break;
                             case "FFFFEB9C":
-                                currentItem = new MyModelItem(cell.getNumericCellValue());
-                                model.putLight(currentItem);
+                                currentItem = model.getLight(cell.getNumericCellValue());
                                 break;
                             default:
                                 break;
