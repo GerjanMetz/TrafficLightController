@@ -7,13 +7,14 @@ public class Main {
         int port = Integer.parseInt(args[0]);
         File excelFile = new File(args[1]);
 
-        MyModel model = new MyModel();
+        MyModel model;
 
         // Read Excel file
         try {
-            ExcelParser.Parse(excelFile);
+            model = ExcelParser.Parse(excelFile);
         } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
 
         Server server = new Server(port, model);

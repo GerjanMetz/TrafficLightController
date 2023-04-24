@@ -5,62 +5,73 @@ import java.util.List;
 import java.util.Map;
 
 public class Director {
+    enum TrainLightStage {
+        OPEN,
+        CLOSING,
+        OPENING,
+        CLOSED
+    }
+
     private static boolean train;
+    private static TrainLightStage trainLightStage = TrainLightStage.OPEN;
+
 
     public static void Decide(MyModel model) {
         List<MyModelItem> newGreenLights = new ArrayList<>();
         List<MyModelItem> possibilities = new ArrayList<>(model.getStatus().values());
         List<MyModelItem> conflicts = new ArrayList<>();
 
-        MyModelItem warningLights = model.getLight(99.0);
-        MyModelItem barriers = model.getLight(100.0);
+        MyModelItem trainCrossing = model.getLight(99.0);
 
         if (train) {
             possibilities = new ArrayList<>(model.getLights(model.getLight(152.0).getPossibilities()));
             conflicts = new ArrayList<>(model.getLights(model.getLight(152.0).getConflicts()));
 
-            try {
-                // If warning lights are off, set them to on
-                if (warningLights.getStatus() == 2 && barriers.getStatus() == 2) {
-                    warningLights.setStatus(0);
-                } else if (warningLights.getStatus() == 0 && // If warning lights are on for X seconds and barriers are not closed, close the barriers
-                        (Duration.between(warningLights.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5) &&
-                        barriers.getStatus() == 2 && (
-                        model.getLight(152.0).getWeight() > 0 ||
-                                model.getLight(154.0).getWeight() > 0 ||
-                                model.getLight(160.0).getWeight() > 0
-                )) {
-                    barriers.setStatus(0);
-                } else if (warningLights.getStatus() == 0 && barriers.getStatus() == 0) { // If barriers are closed and weight has been set to 0
-                    if (model.getLight(152.0).getWeight() == 0 &&
-                            model.getLight(154.0).getWeight() == 0 &&
-                            model.getLight(160.0).getWeight() == 0) {
-                        if ((Duration.between(model.getLight(152.0).getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5) &&
-                                (Duration.between(model.getLight(154.0).getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5) &&
-                                (Duration.between(model.getLight(160.0).getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5)) {
-                            model.getLight(152.0).setStatus(0);
-                            model.getLight(154.0).setStatus(0);
-                            model.getLight(160.0).setStatus(0);
-                            barriers.setStatus(2);
-                        }
-                    } else {
+            switch (trainLightStage) {
+                case OPEN -> {
+                    trainCrossing.setStatus(1);
+                    trainLightStage = TrainLightStage.CLOSING;
+                }
+                case CLOSING -> {
+                    if ((Duration.between(trainCrossing.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5)) {
+                        trainCrossing.setStatus(0);
+                        trainLightStage = TrainLightStage.CLOSED;
+                    }
+                }
+                case CLOSED -> {
+                    if ((Duration.between(trainCrossing.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5) &&
+                            (model.getLight(152.0).getWeight() > 0 ||
+                            model.getLight(154.0).getWeight() > 0 ||
+                            model.getLight(160.0).getWeight() > 0)) {
                         if (model.getLight(152.0).getWeight() > 0) model.getLight(152.0).setStatus(2);
                         else if (model.getLight(154.0).getWeight() > 0) model.getLight(154.0).setStatus(2);
                         else if (model.getLight(160.0).getWeight() > 0) model.getLight(160.0).setStatus(2);
                     }
-                } else if ((Duration.between(barriers.getLastChangeToStatusDate(), // If barriers have been open for X seconds and warning lights are set to 0, set warning lights to 2
-                        LocalDateTime.now()).getSeconds() > 6) &&
-                        barriers.getStatus() == 2 &&
-                        warningLights.getStatus() == 0) {
-                    warningLights.setStatus(2);
-                    train = false;
+
+                    if ((Duration.between(trainCrossing.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 20) &&
+                            model.getLight(152.0).getWeight() == 0 &&
+                            model.getLight(154.0).getWeight() == 0 &&
+                            model.getLight(160.0).getWeight() == 0) {
+
+                        trainCrossing.setStatus(1);
+
+                        model.getLight(152.0).setStatus(0);
+                        model.getLight(154.0).setStatus(0);
+                        model.getLight(160.0).setStatus(0);
+
+                        trainLightStage = TrainLightStage.OPENING;
+                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                case OPENING -> {
+                    if ((Duration.between(trainCrossing.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5)) {
+                        trainCrossing.setStatus(2);
+                        train = false;
+                        trainLightStage = TrainLightStage.OPEN;
+                    }
+                }
             }
         } else {
-            warningLights.setStatus(2);
-            barriers.setStatus(2);
+            trainCrossing.setStatus(2);
         }
 
         // Check if most recent change to green lights is at least 10 seconds
@@ -92,7 +103,7 @@ public class Director {
                     possibilities = new ArrayList<>(model.getLights(model.getLight(152.0).getPossibilities()));
                     conflicts = new ArrayList<>(model.getLights(model.getLight(152.0).getConflicts()));
                 } else {
-                    conflicts = new ArrayList<>(model.getLights(List.of(99.0, 100.0, 152.0, 154.0, 160.0)));
+                    conflicts = new ArrayList<>(model.getLights(List.of(99.0, 152.0, 154.0, 160.0)));
                 }
 
                 // Check if there are no cars
@@ -145,7 +156,7 @@ public class Director {
 
     public static boolean hasLightActive(MyModel model, int lightStatus) {
         for (Map.Entry<Double, MyModelItem> item : model.getStatus().entrySet()) {
-            if (item.getKey() == 99.0 || item.getKey() == 100.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
+            if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
                 continue;
             if (item.getValue().getStatus() == lightStatus) return true;
         }
@@ -154,7 +165,7 @@ public class Director {
 
     public static boolean hasAllLightsSetToRed(MyModel model) {
         for (Map.Entry<Double, MyModelItem> item : model.getStatus().entrySet()) {
-            if (item.getKey() == 99.0 || item.getKey() == 100.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160) {
+            if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160) {
                 continue;
             }
             if (item.getValue().getStatus() != 0) {
@@ -169,7 +180,7 @@ public class Director {
         LocalDateTime now = LocalDateTime.now();
 
         for (Map.Entry<Double, MyModelItem> item : model.getStatus().entrySet()) {
-            if (item.getKey() == 99.0 || item.getKey() == 100.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160) {
+            if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160) {
                 continue;
             }
 
@@ -206,7 +217,7 @@ public class Director {
 
     public static void setGreenLightsToOrange(MyModel model) {
         for (Map.Entry<Double, MyModelItem> item : model.getStatus().entrySet()) {
-            if (item.getKey() == 99.0 || item.getKey() == 100.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
+            if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
                 continue;
             if (item.getValue().getStatus() == 2) item.getValue().setStatus(1);
         }
@@ -214,7 +225,7 @@ public class Director {
 
     public static void setOrangeLightsToRed(MyModel model) {
         for (Map.Entry<Double, MyModelItem> item : model.getStatus().entrySet()) {
-            if (item.getKey() == 99.0 || item.getKey() == 100.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
+            if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
                 continue;
             if (item.getValue().getStatus() == 1) item.getValue().setStatus(0);
         }
@@ -225,5 +236,4 @@ public class Director {
             item.setStatus(2);
         }
     }
-
 }
