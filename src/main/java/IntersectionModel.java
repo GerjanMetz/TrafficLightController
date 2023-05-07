@@ -53,14 +53,15 @@ public class IntersectionModel {
         this.status.clear();
     }
 
-    public List<TrafficLightStatusVO> getSimulatorJSON() {
-        List<TrafficLightStatusVO> result = new ArrayList<>();
+    public IntersectionVO getSimulatorJSON() {
+        IntersectionVO result = new IntersectionVO();
         for (Map.Entry<Double, TrafficLightModel> item : status.entrySet()) {
-            result.add(new TrafficLightStatusVO() {{
+            result.getStatus().add(new TrafficLightStatusVO() {{
                 setId(item.getValue().getId());
                 setStatus(item.getValue().getStatus());
             }});
         }
+        result.setTimer(new TimerVO() {{ setId(timer.getId()); setStatus(timer.getStatus()); setRemainingSeconds(timer.getRemainingSeconds()); }});
         return result;
     }
 
