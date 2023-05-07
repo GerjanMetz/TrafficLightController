@@ -6,6 +6,7 @@ import java.util.Map;
 public class IntersectionModel {
 
     private HashMap<Double, TrafficLightModel> status;
+    private Timer timer;
 
     public IntersectionModel() {
         status = new HashMap<>();
@@ -26,6 +27,10 @@ public class IntersectionModel {
 
     public void putLights(List<TrafficLightModel> list) {
         list.forEach((listItem) -> putLight(listItem));
+    }
+
+    public void setTimer(Timer timer) {
+        this.timer = timer;
     }
 
     public TrafficLightModel getLight(double id) {
