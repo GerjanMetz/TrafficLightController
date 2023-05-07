@@ -10,18 +10,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class ExcelParser {
-    public static MyModel Parse(File excelFile) throws IOException {
-        MyModel model = new MyModel();
+    public static IntersectionModel Parse(File excelFile) throws IOException {
+        IntersectionModel intersectionModel = new IntersectionModel();
         FileInputStream file = new FileInputStream(excelFile);
         Workbook workbook = new XSSFWorkbook(file);
 
         Sheet setupSheet = workbook.getSheet("Setup");
         for (Row row : setupSheet) {
-            model.putLight(new MyModelItem(row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue()));
+            intersectionModel.putLight(new TrafficLightModel(row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue()));
         }
 
         Sheet conflictMatrixSheet = workbook.getSheet("ConflictMatrix");
-        MyModelItem currentItem = null;
+        TrafficLightModel currentItem = null;
         for (Row row : conflictMatrixSheet) {
             for (Cell cell : row) {
                 try {
@@ -36,7 +36,7 @@ public class ExcelParser {
                             currentItem.addConflict(cell.getNumericCellValue());
                             break;
                         case "FFFFEB9C":
-                            currentItem = model.getLight(cell.getNumericCellValue());
+                            currentItem = intersectionModel.getLight(cell.getNumericCellValue());
                             break;
                         default:
                             break;
@@ -46,6 +46,6 @@ public class ExcelParser {
                 }
             }
         }
-        return model;
+        return intersectionModel;
     }
 }

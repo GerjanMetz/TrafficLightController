@@ -3,44 +3,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MyModel {
+public class IntersectionModel {
 
-    private HashMap<Double, MyModelItem> status;
+    private HashMap<Double, TrafficLightModel> status;
 
-    public MyModel() {
+    public IntersectionModel() {
         status = new HashMap<>();
     }
 
-    public MyModel(List<MyModelItem> list) {
+    public IntersectionModel(List<TrafficLightModel> list) {
         status = new HashMap<>();
         putLights(list);
     }
 
-    public HashMap<Double, MyModelItem> getStatus() {
+    public HashMap<Double, TrafficLightModel> getStatus() {
         return status;
     }
 
-    public void putLight(MyModelItem newLight) {
+    public void putLight(TrafficLightModel newLight) {
         status.put(newLight.getId(), newLight);
     }
 
-    public void putLights(List<MyModelItem> list) {
+    public void putLights(List<TrafficLightModel> list) {
         list.forEach((listItem) -> putLight(listItem));
     }
 
-    public MyModelItem getLight(double id) {
+    public TrafficLightModel getLight(double id) {
         return status.get(id);
     }
 
-    public List<MyModelItem> getLights(List<Double> ids) {
-        List<MyModelItem> results = new ArrayList<>();
+    public List<TrafficLightModel> getLights(List<Double> ids) {
+        List<TrafficLightModel> results = new ArrayList<>();
         for (Double id : ids) {
             results.add(status.get(id));
         }
         return results;
     }
 
-    public MyModelItem removeLight(double id) {
+    public TrafficLightModel removeLight(double id) {
         return status.remove(id);
     }
 
@@ -50,7 +50,7 @@ public class MyModel {
 
     public List<TrafficLightStatusVO> getSimulatorJSON() {
         List<TrafficLightStatusVO> result = new ArrayList<>();
-        for (Map.Entry<Double, MyModelItem> item : status.entrySet()) {
+        for (Map.Entry<Double, TrafficLightModel> item : status.entrySet()) {
             result.add(new TrafficLightStatusVO() {{
                 setId(item.getValue().getId());
                 setStatus(item.getValue().getStatus());
@@ -66,7 +66,7 @@ public class MyModel {
     }
 
     public void incrementTurns() {
-        for (Map.Entry<Double, MyModelItem> item : status.entrySet()) {
+        for (Map.Entry<Double, TrafficLightModel> item : status.entrySet()) {
             item.getValue().incrementTurn();
         }
     }
