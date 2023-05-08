@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Scanner;
 
 public class Server {
     ServerSocket serverSocket;
@@ -45,7 +46,23 @@ public class Server {
                 objectMapper.writeValue(clientSocket.getOutputStream(), intersectionModel.getSimulatorJSON());
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            if (e.getMessage().equals("Connection reset")) {
+                System.out.print("Connection was closed, accept new connection? (Y/n): ");
+                String response = new Scanner(System.in).nextLine();
+                switch (response.toLowerCase()) {
+                    case "n":
+                        break;
+                    case "y":
+                    default:
+                        try {
+                            serverSocket.close();
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        start();
+                        break;
+                }
+            }
         }
     }
 }

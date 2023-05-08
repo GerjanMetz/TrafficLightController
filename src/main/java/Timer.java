@@ -45,6 +45,8 @@ public class Timer extends TrafficLightModel {
                 status = 0;
                 remainingSeconds = 120;
                 task.isRunning = false;
+                timer.cancel();
+                timer.purge();
             } else {
                 status = 2;
                 if (!task.isRunning()) {
