@@ -1,44 +1,74 @@
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.TimerTask;
 
 public class Timer extends TrafficLightModel {
     TrafficLightModel trafficLightModel;
     List<TrafficLightModel> linkedTrafficLightModels, interruptingTrafficLightModels;
+    int status, remainingSeconds, weight = 0;
+    java.util.Timer timer;
+
+    CountdownTask task;
 
     public Timer(double id, double multiplier, TrafficLightModel trafficLightModel, List<TrafficLightModel> linkedTrafficLightModels, List<TrafficLightModel> interruptingTrafficLightModels) {
         super(id, multiplier);
         this.trafficLightModel = trafficLightModel;
         this.linkedTrafficLightModels = linkedTrafficLightModels;
         this.interruptingTrafficLightModels = interruptingTrafficLightModels;
+        this.remainingSeconds = 120;
+        this.task = new CountdownTask();
+        this.timer = new java.util.Timer();
     }
 
-    public int getRemainingSeconds() {
-        // Get light with the longest red time
-        TrafficLightModel longestChange = getLongestRedTime(linkedTrafficLightModels);
+    public class CountdownTask extends TimerTask {
+        private boolean isRunning = false;
+        @Override
+        public void run() {
+            remainingSeconds--;
+            this.isRunning = true;
+        }
 
-        // Return remaining time if light is red
-        return getRemainingTime(longestChange);
+        public boolean isRunning() {
+            return this.isRunning;
+        }
+    }
+
+
+    public int getRemainingSeconds() {
+        return remainingSeconds;
     }
 
     public int getStatus() {
-        int result = 0;
         for (TrafficLightModel light : linkedTrafficLightModels) {
             if (light.getStatus() == 1 || light.getStatus() == 2) {
-                result = 0;
+                status = 0;
+                remainingSeconds = 120;
+                task.isRunning = false;
             } else {
-                result = 2;
-            }
-        }
-
-        if (result ==  2 || result == 1) {
-            for (TrafficLightModel light : interruptingTrafficLightModels) {
-                if (light.getStatus() == 2) {
-                    result = 1;
+                status = 2;
+                if (!task.isRunning()) {
+                    task = new CountdownTask();
+                    timer = new java.util.Timer();
+                    timer.scheduleAtFixedRate(task, 0, 1000);
+                    task.isRunning = true;
                 }
             }
         }
-        return result;
+
+        if (status ==  2 || status == 1) {
+            for (TrafficLightModel light : interruptingTrafficLightModels) {
+                if (light.getStatus() == 1 || light.getStatus() == 2) {
+                    status = 1;
+                    if (task.isRunning()) {
+                        task.isRunning = false;
+                        timer.cancel();
+                        timer.purge();
+                    }
+                }
+            }
+        }
+        return status;
     }
 
     private TrafficLightModel getLongestRedTime(List<TrafficLightModel> list) {
@@ -61,3 +91,4 @@ public class Timer extends TrafficLightModel {
         }
     }
 }
+
