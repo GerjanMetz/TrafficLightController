@@ -8,20 +8,35 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class ExcelParser {
-    public static MyModel Parse(File excelFile) throws IOException {
-        MyModel model = new MyModel();
+    public static IntersectionModel Parse(File excelFile) throws IOException {
+        IntersectionModel intersectionModel = new IntersectionModel();
         FileInputStream file = new FileInputStream(excelFile);
         Workbook workbook = new XSSFWorkbook(file);
 
         Sheet setupSheet = workbook.getSheet("Setup");
         for (Row row : setupSheet) {
-            model.putLight(new MyModelItem(row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue()));
+            XSSFColor color = (XSSFColor) row.getCell(0).getCellStyle().getFillForegroundColorColor();
+
+            switch (color.getARGBHex()) {
+                case "FFFFEB9C":
+                    intersectionModel.putLight(new TrafficLightModel(row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue()));
+                    break;
+                case "FFFFFFCC":
+                    intersectionModel.setTimer(new Timer(
+                            row.getCell(0).getNumericCellValue(),
+                            row.getCell(1).getNumericCellValue(),
+                            intersectionModel.getLight(0.0),
+                            intersectionModel.getLights(List.of(86.1, 26.1)),
+                            intersectionModel.getLights(List.of(42.0))));
+                    break;
+            }
         }
 
         Sheet conflictMatrixSheet = workbook.getSheet("ConflictMatrix");
-        MyModelItem currentItem = null;
+        TrafficLightModel currentItem = null;
         for (Row row : conflictMatrixSheet) {
             for (Cell cell : row) {
                 try {
@@ -36,7 +51,7 @@ public class ExcelParser {
                             currentItem.addConflict(cell.getNumericCellValue());
                             break;
                         case "FFFFEB9C":
-                            currentItem = model.getLight(cell.getNumericCellValue());
+                            currentItem = intersectionModel.getLight(cell.getNumericCellValue());
                             break;
                         default:
                             break;
@@ -46,6 +61,6 @@ public class ExcelParser {
                 }
             }
         }
-        return model;
+        return intersectionModel;
     }
 }
