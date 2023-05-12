@@ -7,17 +7,17 @@ public class Main {
         int port = Integer.parseInt(args[0]);
         File excelFile = new File(args[1]);
 
-        MyModel model;
+        IntersectionModel intersectionModel;
 
         // Read Excel file
         try {
-            model = ExcelParser.Parse(excelFile);
+            intersectionModel = ExcelParser.Parse(excelFile);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        Server server = new Server(port, model);
+        Server server = new Server(port, intersectionModel);
         server.start();
     }
 }

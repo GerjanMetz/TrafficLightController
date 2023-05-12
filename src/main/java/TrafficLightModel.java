@@ -2,13 +2,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyModelItem {
+public class TrafficLightModel {
     LocalDateTime lastChangeToStatusDate;
     private double id, weight, multiplier;
     private int status, turnsSinceGreen;
     private List<Double> possibilities, conflicts;
 
-    public MyModelItem(double id) {
+    public TrafficLightModel(double id) {
         this.id = id;
         this.weight = 0;
         this.multiplier = 1.5;
@@ -19,7 +19,7 @@ public class MyModelItem {
         this.conflicts = new ArrayList<>();
     }
 
-    public MyModelItem(double id, double multiplier) {
+    public TrafficLightModel(double id, double multiplier) {
         this.id = id;
         this.weight = 0;
         this.multiplier = multiplier;

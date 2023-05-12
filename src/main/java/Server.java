@@ -6,17 +6,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Scanner;
 
 public class Server {
     ServerSocket serverSocket;
     Socket clientSocket;
     ObjectMapper objectMapper;
     private int port;
-    private MyModel model;
+    private IntersectionModel intersectionModel;
 
-    public Server(int port, MyModel model) {
+    public Server(int port, IntersectionModel intersectionModel) {
         this.port = port;
-        this.model = model;
+        this.intersectionModel = intersectionModel;
         this.objectMapper = new ObjectMapper();
 
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
@@ -36,16 +37,32 @@ public class Server {
                 WaitingCarsVO[] waitingCars = objectMapper.readValue(clientSocket.getInputStream(), WaitingCarsVO[].class);
 
                 // Update model with waiting cars
-                model.setSimulatorJSON(List.of(waitingCars));
+                intersectionModel.setSimulatorJSON(List.of(waitingCars));
 
                 // Calculate new status of lights
-                Director.Decide(model);
+                Director.Decide(intersectionModel);
 
                 // Send new status
-                objectMapper.writeValue(clientSocket.getOutputStream(), model.getSimulatorJSON());
+                objectMapper.writeValue(clientSocket.getOutputStream(), intersectionModel.getSimulatorJSON());
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            if (e.getMessage().equals("Connection reset")) {
+                System.out.print("Connection was closed, accept new connection? (Y/n): ");
+                String response = new Scanner(System.in).nextLine();
+                switch (response.toLowerCase()) {
+                    case "n":
+                        break;
+                    case "y":
+                    default:
+                        try {
+                            serverSocket.close();
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        start();
+                        break;
+                }
+            }
         }
     }
 }
