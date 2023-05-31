@@ -21,20 +21,6 @@ public class Timer extends TrafficLightModel {
         this.timer = new java.util.Timer();
     }
 
-    public class CountdownTask extends TimerTask {
-        private boolean isRunning = false;
-        @Override
-        public void run() {
-            remainingSeconds--;
-            this.isRunning = true;
-        }
-
-        public boolean isRunning() {
-            return this.isRunning;
-        }
-    }
-
-
     public int getRemainingSeconds() {
         return remainingSeconds;
     }
@@ -58,7 +44,7 @@ public class Timer extends TrafficLightModel {
             }
         }
 
-        if (status ==  2 || status == 1) {
+        if (status == 2 || status == 1) {
             for (TrafficLightModel light : interruptingTrafficLightModels) {
                 if (light.getStatus() == 1 || light.getStatus() == 2) {
                     status = 1;
@@ -90,6 +76,20 @@ public class Timer extends TrafficLightModel {
             return (int) (120 - difference.getSeconds());
         } else {
             return 0;
+        }
+    }
+
+    public class CountdownTask extends TimerTask {
+        private boolean isRunning = false;
+
+        @Override
+        public void run() {
+            remainingSeconds--;
+            this.isRunning = true;
+        }
+
+        public boolean isRunning() {
+            return this.isRunning;
         }
     }
 }

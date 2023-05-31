@@ -61,7 +61,11 @@ public class IntersectionModel {
                 setStatus(item.getValue().getStatus());
             }});
         }
-        result.setTimer(new TimerVO() {{ setId(timer.getId()); setStatus(timer.getStatus()); setRemainingSeconds(timer.getRemainingSeconds()); }});
+        result.setTimer(new TimerVO() {{
+            setId(timer.getId());
+            setStatus(timer.getStatus());
+            setRemainingSeconds(timer.getRemainingSeconds());
+        }});
         return result;
     }
 

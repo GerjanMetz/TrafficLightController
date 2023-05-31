@@ -5,16 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Director {
-    enum TrainLightStage {
-        OPEN,
-        CLOSING,
-        OPENING,
-        CLOSED
-    }
-
     private static boolean train;
     private static TrainLightStage trainLightStage = TrainLightStage.OPEN;
-
 
     public static void Decide(IntersectionModel intersectionModel) {
         List<TrafficLightModel> newGreenLights = new ArrayList<>();
@@ -41,11 +33,14 @@ public class Director {
                 case CLOSED -> {
                     if ((Duration.between(trainCrossing.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 5) &&
                             (intersectionModel.getLight(152.0).getWeight() > 0 ||
-                            intersectionModel.getLight(154.0).getWeight() > 0 ||
-                            intersectionModel.getLight(160.0).getWeight() > 0)) {
-                        if (intersectionModel.getLight(152.0).getWeight() > 0) intersectionModel.getLight(152.0).setStatus(2);
-                        else if (intersectionModel.getLight(154.0).getWeight() > 0) intersectionModel.getLight(154.0).setStatus(2);
-                        else if (intersectionModel.getLight(160.0).getWeight() > 0) intersectionModel.getLight(160.0).setStatus(2);
+                                    intersectionModel.getLight(154.0).getWeight() > 0 ||
+                                    intersectionModel.getLight(160.0).getWeight() > 0)) {
+                        if (intersectionModel.getLight(152.0).getWeight() > 0)
+                            intersectionModel.getLight(152.0).setStatus(2);
+                        else if (intersectionModel.getLight(154.0).getWeight() > 0)
+                            intersectionModel.getLight(154.0).setStatus(2);
+                        else if (intersectionModel.getLight(160.0).getWeight() > 0)
+                            intersectionModel.getLight(160.0).setStatus(2);
                     }
 
                     if ((Duration.between(trainCrossing.getLastChangeToStatusDate(), LocalDateTime.now()).getSeconds() > 20) &&
@@ -235,5 +230,12 @@ public class Director {
         for (TrafficLightModel item : list) {
             item.setStatus(2);
         }
+    }
+
+    enum TrainLightStage {
+        OPEN,
+        CLOSING,
+        OPENING,
+        CLOSED
     }
 }

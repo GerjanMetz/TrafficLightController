@@ -2,7 +2,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class IntersectionVO {
@@ -12,6 +11,7 @@ public class IntersectionVO {
     public IntersectionVO() {
         status = new ArrayList<>();
     }
+
     @JsonGetter("trafficlights")
     public List<TrafficLightStatusVO> getStatus() {
         return status;
