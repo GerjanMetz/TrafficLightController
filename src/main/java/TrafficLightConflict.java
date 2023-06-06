@@ -1,5 +1,8 @@
 import java.util.List;
 
+/**
+ * Object to hold the lanes that hold the possibilities and conflicts for a TrafficLightModel.
+ */
 public class TrafficLightConflict {
     private List<Double> possibilities;
     private List<Double> conflicts;

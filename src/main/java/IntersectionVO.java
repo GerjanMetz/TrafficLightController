@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Object to be used to serialized into JSON for the simulator.
+ */
 public class IntersectionVO {
     private List<TrafficLightStatusVO> status;
     private TimerVO timer;

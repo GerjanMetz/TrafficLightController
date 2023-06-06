@@ -1,6 +1,9 @@
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Timer object to be serialized into JSON for the simulator.
+ */
 public class TimerVO {
     double id;
     int status;

@@ -11,6 +11,17 @@ import java.io.IOException;
 import java.util.List;
 
 public class ExcelParser {
+    /**
+     * Parse an Excel file to initialize and IntersectionModel.
+     * @param excelFile the Excel file to use to initialize the IntersectionModel. Needs a sheet named "Setup" with a
+     *                  list of all the traffic lights on the intersection on the first column formatted as a double.
+     *                  The second column contains the number to use as a multiplier formatted as a double. The second
+     *                  sheet needs to have the name "ConflictMatrix". The first column needs to have a light number
+     *                  formatted as a double with all following columns the other light numbers with a green background
+     *                  for a possibility and a red background for a conflict.
+     * @return new initialized IntersectionModel.
+     * @throws IOException
+     */
     public static IntersectionModel Parse(File excelFile) throws IOException {
         IntersectionModel intersectionModel = new IntersectionModel();
         FileInputStream file = new FileInputStream(excelFile);

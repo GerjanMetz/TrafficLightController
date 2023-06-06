@@ -2,6 +2,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Object to be used to deserialized from JSON for the IntersectionModel.
+ */
 public class WaitingCarsVO {
     double id, priorityMultiplier;
     int weight;

@@ -8,6 +8,10 @@ public class Director {
     private static boolean train;
     private static TrainLightStage trainLightStage = TrainLightStage.OPEN;
 
+    /**
+     * Modify an IntersectionModel based on a dynamic priority algorithm.
+     * @param intersectionModel the IntersectionModel to modify.
+     */
     public static void Decide(IntersectionModel intersectionModel) {
         List<TrafficLightModel> newGreenLights = new ArrayList<>();
         List<TrafficLightModel> possibilities = new ArrayList<>(intersectionModel.getStatus().values());
@@ -120,6 +124,14 @@ public class Director {
         }
     }
 
+    /**
+     * Recursive function to decide the lane with the highest priority.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @param results the list to add the next highest priority to get a green light.
+     * @param possibilities list of possible lanes for a green light.
+     * @param conflicts list of conflicting lanes that cannot have a green light.
+     * @return list of lights to turn green.
+     */
     public static List<TrafficLightModel> findNextPriority(IntersectionModel intersectionModel, List<TrafficLightModel> results, List<TrafficLightModel> possibilities, List<TrafficLightModel> conflicts) {
         // Clean possibilities list from entries found in the conflicts list
         List<TrafficLightModel> possibilitiesCopy = new ArrayList<>(possibilities); // Hotfix to prevent concurrent exception
@@ -142,6 +154,11 @@ public class Director {
         return findNextPriority(intersectionModel, results, possibilities, conflicts);
     }
 
+    /**
+     * Check if IntersectionModel has any waiting traffic.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @return true if there is no waiting traffic, false if there is any waiting traffic.
+     */
     public static boolean hasNoWaitingCars(IntersectionModel intersectionModel) {
         for (Map.Entry<Double, TrafficLightModel> item : intersectionModel.getStatus().entrySet()) {
             if (item.getValue().getWeight() > 0) return false;
@@ -149,6 +166,13 @@ public class Director {
         return true;
     }
 
+    /**
+     * Check if IntersectionModel has specified light status active.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @param lightStatus specified light status to check: 0 for red, 1 for orange, 2 for green.
+     * @return true is any light with the specified light status is active, false if there is no light with the
+     * specified light status active. This ignores the train crossing.
+     */
     public static boolean hasLightActive(IntersectionModel intersectionModel, int lightStatus) {
         for (Map.Entry<Double, TrafficLightModel> item : intersectionModel.getStatus().entrySet()) {
             if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
@@ -158,6 +182,12 @@ public class Director {
         return false;
     }
 
+    /**
+     * Check if IntersectionModel has every light set to red.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @return true if every light is set to red, false if there are any lights not set to red. This ignores the train
+     * crossing.
+     */
     public static boolean hasAllLightsSetToRed(IntersectionModel intersectionModel) {
         for (Map.Entry<Double, TrafficLightModel> item : intersectionModel.getStatus().entrySet()) {
             if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160) {
@@ -170,6 +200,12 @@ public class Director {
         return true;
     }
 
+    /**
+     * Get the shortest time any light changed to a specified light status.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @param lightStatus the specified light status to check.
+     * @return the shortest time since any light changed to a specified status.
+     */
     public static long getShortestChangeToStatusDateInSeconds(IntersectionModel intersectionModel, int lightStatus) {
         long shortestSeconds = Long.MAX_VALUE;
         LocalDateTime now = LocalDateTime.now();
@@ -187,6 +223,12 @@ public class Director {
         return shortestSeconds;
     }
 
+    /**
+     * Get the longest time any light changed to a specified light status.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @param lightStatus the specified light status to check.
+     * @return the longest time since any light changed to a specified status.
+     */
     public static long getLongestChangeToStatusDateInSeconds(IntersectionModel intersectionModel, int lightStatus) {
         long shortestSeconds = Long.MIN_VALUE;
         LocalDateTime now = LocalDateTime.now();
@@ -200,6 +242,11 @@ public class Director {
         return shortestSeconds;
     }
 
+    /**
+     * Get the TrafficLightModel with the highest weight in an IntersectionModel.
+     * @param intersectionModel the IntersectionModel to look through.
+     * @return the TrafficLightModel with the highest weight in the IntersectionModel.
+     */
     public static TrafficLightModel findHighestWeight(IntersectionModel intersectionModel) {
         TrafficLightModel result = intersectionModel.getStatus().entrySet().iterator().next().getValue();
         for (Map.Entry<Double, TrafficLightModel> item : intersectionModel.getStatus().entrySet()) {
@@ -210,6 +257,10 @@ public class Director {
         return result;
     }
 
+    /**
+     * Set all green lights in an IntersectionModel to orange.
+     * @param intersectionModel the IntersectionModel to modify.
+     */
     public static void setGreenLightsToOrange(IntersectionModel intersectionModel) {
         for (Map.Entry<Double, TrafficLightModel> item : intersectionModel.getStatus().entrySet()) {
             if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
@@ -218,6 +269,10 @@ public class Director {
         }
     }
 
+    /**
+     * Set all orange lights in an IntersectionModel to red.
+     * @param intersectionModel the IntersectionModel to modify.
+     */
     public static void setOrangeLightsToRed(IntersectionModel intersectionModel) {
         for (Map.Entry<Double, TrafficLightModel> item : intersectionModel.getStatus().entrySet()) {
             if (item.getKey() == 99.0 || item.getKey() == 152.0 || item.getKey() == 154.0 || item.getKey() == 160)
@@ -226,12 +281,19 @@ public class Director {
         }
     }
 
+    /**
+     * Change a list of traffic lights to green.
+     * @param list the list of traffic lights to set to green.
+     */
     public static void setLightsToGreen(List<TrafficLightModel> list) {
         for (TrafficLightModel item : list) {
             item.setStatus(2);
         }
     }
 
+    /**
+     * Enum containing the stages for the train crossing: OPEN, CLOSING, OPENING & CLOSED.
+     */
     enum TrainLightStage {
         OPEN,
         CLOSING,

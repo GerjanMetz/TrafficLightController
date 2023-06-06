@@ -21,10 +21,18 @@ public class Timer extends TrafficLightModel {
         this.timer = new java.util.Timer();
     }
 
+    /**
+     * Get the remaining seconds in the timer.
+     * @return the remaining amount of seconds in the timer formatted as int.
+     */
     public int getRemainingSeconds() {
         return remainingSeconds;
     }
 
+    /**
+     * Get the status of the timer.
+     * @return the status of the timer formatted as int: 0 for not running, 1 for paused, 2 for running.
+     */
     public int getStatus() {
         for (TrafficLightModel light : linkedTrafficLightModels) {
             if (light.getStatus() == 1 || light.getStatus() == 2) {
@@ -59,6 +67,11 @@ public class Timer extends TrafficLightModel {
         return status;
     }
 
+    /**
+     * Get the TrafficLightModel with the longest time on red from a specified list.
+     * @param list the list to look through.
+     * @return the TrafficLightModel that has the longest red time.
+     */
     private TrafficLightModel getLongestRedTime(List<TrafficLightModel> list) {
         TrafficLightModel longestChange = list.get(0);
         for (TrafficLightModel light : list) {
@@ -70,6 +83,11 @@ public class Timer extends TrafficLightModel {
         return longestChange;
     }
 
+    /**
+     * Get the maximum remaining time for a red light to turn to green.
+     * @param light the light to get the maximum remaining time to green.
+     * @return the maximum remaining time for the specified light to turn to green. 0 if the light is not set to red.
+     */
     private int getRemainingTime(TrafficLightModel light) {
         if (light.getStatus() == 0) {
             Duration difference = Duration.between(light.getLastChangeToStatusDate(), LocalDateTime.now());
@@ -79,6 +97,9 @@ public class Timer extends TrafficLightModel {
         }
     }
 
+    /**
+     * Remove one from the remaining seconds.
+     */
     public class CountdownTask extends TimerTask {
         private boolean isRunning = false;
 

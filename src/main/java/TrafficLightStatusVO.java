@@ -1,6 +1,9 @@
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Object to be used to serialized into JSON for the simulator.
+ */
 public class TrafficLightStatusVO {
     double id;
     int status;

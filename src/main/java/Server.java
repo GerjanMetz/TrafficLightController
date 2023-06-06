@@ -14,6 +14,11 @@ public class Server {
     private int port;
     private IntersectionModel intersectionModel;
 
+    /**
+     *
+     * @param port the port to use for the server.
+     * @param intersectionModel the model of the intersection.
+     */
     public Server(int port, IntersectionModel intersectionModel) {
         this.port = port;
         this.intersectionModel = intersectionModel;
@@ -24,6 +29,9 @@ public class Server {
 
     }
 
+    /**
+     * Main loop of the application.
+     */
     public void start() {
         try {
             serverSocket = new ServerSocket(port);
